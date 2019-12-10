@@ -27,6 +27,7 @@ from tensorflow.python.keras.layers.wrappers import TimeDistributed as TD
 from tensorflow.python.keras.layers import Conv3D, MaxPooling3D, Cropping3D, Conv2DTranspose
 
 import donkeycar as dk
+import pdb
 
 if tf.__version__ == '1.13.1':
     from tensorflow import ConfigProto, Session
@@ -368,11 +369,11 @@ def default_n_linear(num_outputs, input_shape=(120, 160, 3), roi_crop=(0, 0)):
 
 
     # combine the output of both branches
-    combined_0 = [x_outputs[0], y_outputs[0]]
-    combined_1 = [x_outputs[1], y_outputs[1]]
+    combined_0 = tf.keras.layers.average([x_outputs[0], y_outputs[0]])
+    combined_1 = tf.keras.layers.average([x_outputs[1], y_outputs[1]])
 
     z_0 = Dense(2, activation="relu")(combined_0)
-    z_0 = Dense(1, activation="linear")(z_0)
+    z_0 = Dense(1, activation="linear")(combined_0)
 
     z_1 = Dense(2, activation="relu")(combined_1)
     z_1 = Dense(1, activation="linear")(z_1)
@@ -385,43 +386,41 @@ def default_n_linear(num_outputs, input_shape=(120, 160, 3), roi_crop=(0, 0)):
 
 
 
-
-
 ### ORIGINAL MODEL
-def default_n_linear(num_outputs, input_shape=(120, 160, 3), roi_crop=(0, 0)):
+# def default_n_linear(num_outputs, input_shape=(120, 160, 3), roi_crop=(0, 0)):
 
-    drop = 0.1
+#     drop = 0.1
 
-    #we now expect that cropping done elsewhere. we will adjust our expeected image size here:
-    input_shape = adjust_input_shape(input_shape, roi_crop)
+#     #we now expect that cropping done elsewhere. we will adjust our expeected image size here:
+#     input_shape = adjust_input_shape(input_shape, roi_crop)
     
-    img_in = Input(shape=input_shape, name='img_in')
-    x = img_in
-    x = Convolution2D(24, (5,5), strides=(2,2), activation='relu', name="conv2d_1")(x)
-    x = Dropout(drop)(x)
-    x = Convolution2D(32, (5,5), strides=(2,2), activation='relu', name="conv2d_2")(x)
-    x = Dropout(drop)(x)
-    x = Convolution2D(64, (5,5), strides=(2,2), activation='relu', name="conv2d_3")(x)
-    x = Dropout(drop)(x)
-    x = Convolution2D(64, (3,3), strides=(1,1), activation='relu', name="conv2d_4")(x)
-    x = Dropout(drop)(x)
-    x = Convolution2D(64, (3,3), strides=(1,1), activation='relu', name="conv2d_5")(x)
-    x = Dropout(drop)(x)
+#     img_in = Input(shape=input_shape, name='img_in')
+#     x = img_in
+#     x = Convolution2D(24, (5,5), strides=(2,2), activation='relu', name="conv2d_1")(x)
+#     x = Dropout(drop)(x)
+#     x = Convolution2D(32, (5,5), strides=(2,2), activation='relu', name="conv2d_2")(x)
+#     x = Dropout(drop)(x)
+#     x = Convolution2D(64, (5,5), strides=(2,2), activation='relu', name="conv2d_3")(x)
+#     x = Dropout(drop)(x)
+#     x = Convolution2D(64, (3,3), strides=(1,1), activation='relu', name="conv2d_4")(x)
+#     x = Dropout(drop)(x)
+#     x = Convolution2D(64, (3,3), strides=(1,1), activation='relu', name="conv2d_5")(x)
+#     x = Dropout(drop)(x)
     
-    x = Flatten(name='flattened')(x)
-    x = Dense(100, activation='relu')(x)
-    x = Dropout(drop)(x)
-    x = Dense(50, activation='relu')(x)
-    x = Dropout(drop)(x)
+#     x = Flatten(name='flattened')(x)
+#     x = Dense(100, activation='relu')(x)
+#     x = Dropout(drop)(x)
+#     x = Dense(50, activation='relu')(x)
+#     x = Dropout(drop)(x)
 
-    outputs = []
+#     outputs = []
     
-    for i in range(num_outputs):
-        outputs.append(Dense(1, activation='linear', name='n_outputs' + str(i))(x))
+#     for i in range(num_outputs):
+#         outputs.append(Dense(1, activation='linear', name='n_outputs' + str(i))(x))
         
-    model = Model(inputs=[img_in], outputs=outputs)
+#     model = Model(inputs=[img_in], outputs=outputs)
     
-    return model
+#     return model
 
 
 
